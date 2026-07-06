@@ -11,9 +11,9 @@ inputs:
     required: false
     default: '.'
   engines:
-    description: 'Which scans to run: any of scan,secrets,quality (comma-separated).'
+    description: 'Which engines to run (comma-separated). Keyless and zero-config: secrets, quality, frontend. The corpus bug/vuln matcher `scan` needs an ingested corpus, so it is not in the CI default.'
     required: false
-    default: 'scan,secrets'
+    default: 'secrets,quality'
   format:
     description: 'Report format: text | json | sarif.'
     required: false
