@@ -27,7 +27,7 @@ inputs:
     required: false
     default: 'none'
   license:
-    description: 'Contents of an Unslop license file (use ${{ secrets.UNSLOP_LICENSE }}). Free tier if omitted.'
+    description: 'Contents of an Unslop license file. Pass the secrets.UNSLOP_LICENSE secret. Free tier if omitted.'
     required: false
     default: ''
   version:
@@ -43,7 +43,7 @@ inputs:
     required: false
     default: 'https://api.cognitive-industries.org'
   upload-token:
-    description: 'Per-installation upload token for the Unslop App (use ${{ secrets.UNSLOP_UPLOAD_TOKEN }}). Issued when you link the installation to your Unslop plan.'
+    description: 'Per-installation upload token for the Unslop App. Pass the secrets.UNSLOP_UPLOAD_TOKEN secret. Issued when you link the installation to your Unslop plan.'
     required: false
     default: ''
 
@@ -99,24 +99,7 @@ runs:
           # emitted when the license permits CI gating; otherwise unslop exits 0).
           if [ "$rc" -ne 0 ]; then gate_rc="$rc"; fi
           # Count findings from this engine's report (best effort, format-aware).
-          n="$(python3 - "$out" "$fmt" <<'PY' 2>/dev/null || echo 0
-import sys, json
-path, fmt = sys.argv[1], sys.argv[2]
-try:
-    d = json.load(open(path, encoding="utf-8"))
-    if fmt == "sarif":
-        print(sum(len(r.get("results", [])) for r in d.get("runs", [])))
-    else:  # json — engines use different keys
-        for k in ("detections", "findings", "smells", "issues"):
-            v = d.get(k)
-            if isinstance(v, list):
-                print(len(v)); break
-        else:
-            print(0)
-except Exception:
-    print(0)
-PY
-)"
+          n="$(python3 "$GITHUB_ACTION_PATH/count_findings.py" "$out" "$fmt" 2>/dev/null || echo 0)"
           total=$((total + ${n:-0}))
         done
         # merge is a no-op for a single engine; expose the first report
