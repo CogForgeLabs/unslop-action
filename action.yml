@@ -62,11 +62,11 @@ runs:
       shell: bash
       run: |
         set -euo pipefail
-        if [ "${{ inputs.version }}" = "latest" ]; then
-          curl -fsSL https://unslop.cognitive-industries.org/install.sh | UNSLOP_PREFIX="$HOME/.local/bin" sh
-        else
-          curl -fsSL "https://unslop.cognitive-industries.org/install.sh" | UNSLOP_PREFIX="$HOME/.local/bin" UNSLOP_VERSION="${{ inputs.version }}" sh
-        fi
+        # Run the installer bundled with the action rather than fetching it over
+        # the marketing domain: Cloudflare bot protection 403s that host from CI
+        # IPs. The script downloads the binary from GitHub Releases, which CI can
+        # always reach.
+        UNSLOP_PREFIX="$HOME/.local/bin" UNSLOP_VERSION="${{ inputs.version }}" sh "$GITHUB_ACTION_PATH/install.sh"
         echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
     - name: Activate license
