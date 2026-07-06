@@ -60,6 +60,8 @@ fi
 
 tar -xzf "${tmp}/${tarball}" -C "$tmp"
 
+# Create the target dir if it does not exist yet (e.g. a fresh $HOME/.local/bin).
+mkdir -p "$PREFIX" 2>/dev/null || sudo mkdir -p "$PREFIX"
 if [ -w "$PREFIX" ]; then mv "$tmp/$BIN" "$PREFIX/$BIN"; else sudo mv "$tmp/$BIN" "$PREFIX/$BIN"; fi
 chmod +x "$PREFIX/$BIN"
 echo "✔ installed ${BIN} → ${PREFIX}/${BIN}"
